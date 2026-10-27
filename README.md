@@ -105,9 +105,9 @@ every pull request (download it from the run's **vsix** artifact). Pushing a
 must match the `version` in `package.json`:
 
 ```sh
-npm version 0.4.0 --no-git-tag-version   # bump package.json + lockfile
-git commit -am "Release 0.4.0" && git push
-git tag v0.4.0 && git push origin v0.4.0
+npm version 0.5.0 --no-git-tag-version   # bump package.json + lockfile
+git commit -am "Release 0.5.0" && git push
+git tag v0.5.0 && git push origin v0.5.0
 ```
 
 ### Manual smoke checklist

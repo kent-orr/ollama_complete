@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (2026-10-27)
 
 - fim prompts include definitions from the language server for the call being
   typed, nearby identifiers, and workspace symbols that start with a partly
