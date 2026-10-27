@@ -1,0 +1,213 @@
+{
+  "name": "pawplete",
+  "displayName": "Pawplete",
+  "description": "Minimal inline code completion via a local Ollama model.",
+  "version": "0.3.0",
+  "publisher": "pawpaw-analytics",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pawplete.trigger",
+        "title": "Pawplete: Trigger Completion"
+      },
+      {
+        "command": "pawplete.toggle",
+        "title": "Pawplete: Toggle Enabled"
+      },
+      {
+        "command": "pawplete.selectModel",
+        "title": "Pawplete: Select Model"
+      },
+      {
+        "command": "pawplete.acceptLine",
+        "title": "Pawplete: Accept Next Line of Suggestion"
+      },
+      {
+        "command": "pawplete.openSidebar",
+        "title": "Pawplete: Open Sidebar"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "pawplete.trigger",
+        "key": "alt+\\",
+        "when": "editorTextFocus"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pawplete",
+          "title": "Pawplete",
+          "icon": "media/pawplete.svg"
+        }
+      ]
+    },
+    "views": {
+      "pawplete": [
+        {
+          "type": "webview",
+          "id": "pawplete.settings",
+          "name": "Settings",
+          "contextualTitle": "Pawplete"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Pawplete",
+      "properties": {
+        "pawplete.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable inline completions."
+        },
+        "pawplete.host": {
+          "type": "string",
+          "default": "http://localhost:11434",
+          "description": "Ollama base URL."
+        },
+        "pawplete.model": {
+          "type": "string",
+          "default": "qwen3.5:2b",
+          "description": "Ollama model name (see `ollama list`)."
+        },
+        "pawplete.mode": {
+          "type": "string",
+          "enum": [
+            "fim",
+            "chat"
+          ],
+          "default": "fim",
+          "enumDescriptions": [
+            "Fill-in-the-middle via /api/generate. Fast and accurate; ignores instructions and thinking.",
+            "Chat via /api/chat. Uses the instructions and thinking settings."
+          ],
+          "description": "Prompt strategy."
+        },
+        "pawplete.thinking": {
+          "type": "boolean",
+          "default": false,
+          "description": "Chat mode only. Let the model think before answering (slower)."
+        },
+        "pawplete.instructions": {
+          "type": "string",
+          "default": "You are an inline code completion engine inside a code editor.\nYou will receive a file excerpt containing the marker <CURSOR>.\nReply with ONLY the code that should be inserted at <CURSOR>.\nRules:\n- Do not repeat any code that already appears before or after the marker.\n- Do not add explanations, comments about your reasoning, or markdown fences.\n- Match the indentation, naming, and style of the surrounding code.\n- Stop as soon as the immediate statement, block, or expression is complete.",
+          "editPresentation": "multilineText",
+          "description": "Chat mode only. System prompt sent to the model."
+        },
+        "pawplete.contextLinesAbove": {
+          "type": "integer",
+          "default": 100,
+          "minimum": 0,
+          "description": "Maximum lines before the cursor sent as context."
+        },
+        "pawplete.contextLinesBelow": {
+          "type": "integer",
+          "default": 30,
+          "minimum": 0,
+          "description": "Maximum lines after the cursor sent as context."
+        },
+        "pawplete.crossFileContextChars": {
+          "type": "integer",
+          "default": 2000,
+          "minimum": 0,
+          "description": "fim mode only. Characters of related code taken from other open files and added to the prompt. 0 disables."
+        },
+        "pawplete.definitionContextChars": {
+          "type": "integer",
+          "default": 1500,
+          "minimum": 0,
+          "description": "fim mode only. Characters of definitions, found through the language server, for the function being called and other symbols near the cursor. Only definitions in the workspace are used. 0 disables."
+        },
+        "pawplete.maxLines": {
+          "type": "integer",
+          "default": 5,
+          "minimum": 1,
+          "description": "Maximum lines in a suggestion. With adaptiveLines on, this applies on blank lines only. 1 forces single-line completions."
+        },
+        "pawplete.adaptiveLines": {
+          "type": "boolean",
+          "default": true,
+          "description": "Suggest a single line when the cursor line already has code, and up to maxLines on a blank line."
+        },
+        "pawplete.maxTokens": {
+          "type": "integer",
+          "default": 128,
+          "minimum": 1,
+          "description": "Hard cap on generated tokens (num_predict)."
+        },
+        "pawplete.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Sampling temperature."
+        },
+        "pawplete.debounceMs": {
+          "type": "integer",
+          "default": 300,
+          "minimum": 0,
+          "description": "Delay after the last keystroke before requesting a completion."
+        },
+        "pawplete.triggerMode": {
+          "type": "string",
+          "enum": [
+            "automatic",
+            "manual"
+          ],
+          "default": "automatic",
+          "description": "Automatic: suggest while typing. Manual: only on the trigger command."
+        },
+        "pawplete.keepAlive": {
+          "type": "string",
+          "default": "30m",
+          "description": "How long Ollama keeps the model loaded after a request (keep_alive)."
+        },
+        "pawplete.disabledLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "plaintext",
+            "markdown"
+          ],
+          "description": "Language IDs that never trigger completions."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run test/unit",
+    "test:live": "OLLAMA_LIVE=1 vitest run test/live",
+    "test:integration": "npm run build && tsc -p test/integration/tsconfig.json && node out-test/test/integration/runTest.js",
+    "package": "npm run typecheck && npm test && npm run build && vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.100.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "mocha": "^11.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  }
+}
