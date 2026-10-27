@@ -10,9 +10,12 @@ Minimal inline code completion for VS Code / VSCodium, backed by a local
 
 ## Install
 
+Download `pawplete-<version>.vsix` from the
+[Releases](https://github.com/kent-orr/ollama_complete/releases) page, then:
+
 ```sh
 ollama pull qwen3.5:2b
-codium --install-extension pawplete-0.3.0.vsix   # or: code --install-extension ...
+codium --install-extension pawplete-<version>.vsix   # or: code --install-extension ...
 ```
 
 ## Use
@@ -92,6 +95,19 @@ npm test                  # unit tests (vitest, no Ollama needed)
 npm run test:live         # real requests to qwen3.5:2b on localhost
 npm run test:integration  # launches VS Code, uses a stub Ollama
 npm run package           # typecheck + unit tests + bundle + .vsix
+```
+
+### Release
+
+`.github/workflows/vsix.yml` builds the `.vsix` on every push to `main` and
+every pull request (download it from the run's **vsix** artifact). Pushing a
+`v*` tag also publishes a GitHub release with the `.vsix` attached. The tag
+must match the `version` in `package.json`:
+
+```sh
+npm version 0.4.0 --no-git-tag-version   # bump package.json + lockfile
+git commit -am "Release 0.4.0" && git push
+git tag v0.4.0 && git push origin v0.4.0
 ```
 
 ### Manual smoke checklist
